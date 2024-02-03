@@ -29,6 +29,8 @@ set(unitTests
 	_ # template for test cases
 	test_Version # test project version info retrieval
 
+	test_type # 3D rigid body transformation
+
 	)
 
 foreach(aUnitTest ${unitTests}) # loop over all tests
