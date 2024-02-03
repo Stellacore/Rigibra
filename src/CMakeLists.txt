@@ -54,7 +54,14 @@ target_include_directories(
 	PUBLIC
 		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
 		$<INSTALL_INTERFACE:include/${aProjName}>
-	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
+	PRIVATE
+		${CMAKE_CURRENT_SOURCE_DIR}
+	)
+
+target_link_libraries(
+	${${aProjName}LibName}
+	PRIVATE
+		Engabra::Engabra
 	)
 
 # install the library
@@ -70,7 +77,7 @@ add_library(${aProjName}::${aProjName} ALIAS ${${aProjName}LibName})
 add_library(
 	${EXPORT_ALIAS_NAME}
 	ALIAS
-	${${aProjName}LibName}
+		${${aProjName}LibName}
 	)
 
 # export linkable library target

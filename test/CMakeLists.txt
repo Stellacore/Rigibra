@@ -53,6 +53,7 @@ foreach(aUnitTest ${unitTests}) # loop over all tests
 	target_link_libraries(
 		${aUnitTest}
 		PRIVATE
+			Engabra::Engabra
 			${aProjName}::${aProjName}
 		)
 

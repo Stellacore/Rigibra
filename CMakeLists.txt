@@ -86,6 +86,10 @@ set(BUILD_FLAGS_FOR_VISUAL
 	""
 	)
 
+find_package(Engabra REQUIRED NO_MODULE)
+message(Engabra Found: ${Engabra_FOUND})
+message(Engabra Version: ${Engabra_VERSION})
+
 ##
 ## -- configure packaging utilities
 ##
@@ -113,20 +117,35 @@ message("### EXPORT_FILENAME: " ${EXPORT_FILENAME})
 
 ## -- Inform CMake about project tree
 
-# Project source code
+# ===
+# === Documentation
+# ===
+
+add_subdirectory(doc) # project reference documentation
+
+# ===
+# === Library
+# ===
+
 add_subdirectory(src) # project source code
 add_subdirectory(include) # project library public interface (e.g. c++ headers)
 
-# Documentation
-add_subdirectory(doc) # project reference documentation
+# ===
+# === Tests
+# ===
 
-# Project test programs
 add_subdirectory(test) # developer unit tests (check source code operation)
-#add_subdirectory(vnv) # use-case validation tests
+#add_subdirectory(vnv) # use-case verifcation and validation tests
 
-# Project examples
+# ===
+# === Demonstrations
+# ===
+
 #add_subdirectory(demo) # demonstration/example code
 
+# ===
+# === Packaging
+# ===
 
 # CMake configuration file packaging
 add_subdirectory(cmake) # generate .cmake files for downstream use
@@ -150,8 +169,6 @@ set_property(
 	APPEND PROPERTY COMPATIBLE_INTERFACE_STRING ${aProjName}_MAJOR_VERSION
 	)
 
-
-
 ##
 ## -- Distribution packages
 ##
@@ -168,7 +185,6 @@ set(CPACK_PACKAGING_INSTALL_PREFIX "${DEB_PACKAGE_ROOT}")
 
 # list of packages to create (e.g. "DEB;RPM;...") if all tools installed
 set(CPACK_GENERATOR "DEB")
-
 
 #
 # === Distribution package creation
