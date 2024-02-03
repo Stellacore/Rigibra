@@ -1,0 +1,25 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: Rigibra
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - name: Stellacore Corporation
+  - given-names: Dave
+    family-names: Knopp
+repository-code: 'https://github.com/Stellacore/Rigibra'
+abstract: >-
+  Rigid body transformation algebra library that uses
+  Engabra package to provide concise and powerful
+  representation of rigid body orientation and dyanmics
+  in 3D space.
+keywords:
+  - Rigid Body
+  - Orientation
+  - Pose
+  - Transformation
+license: MIT
