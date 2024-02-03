@@ -48,13 +48,13 @@ if (DOXYGEN_FOUND)
 		VERBATIM
 		)
 
-message("#### ${CMAKE_CURRENT_BINARY_DIR}/html : "
+message("#### CMAKE_CURRENT_BINARY_DIR/html : "
 	${CMAKE_CURRENT_BINARY_DIR}/html)
-message("#### ${CMAKE_INSTALL_DOCDIR}/${local_LIBTARGET} : "
+message("#### CMAKE_INSTALL_DOCDIR/${local_LIBTARGET} : "
 	${CMAKE_INSTALL_DOCDIR}/${local_LIBTARGET})
-message("#### ${CMAKE_INSTALL_DOCDIR} : "
+message("#### CMAKE_INSTALL_DOCDIR : "
 	${CMAKE_INSTALL_DOCDIR})
-message("#### ${CPACK_PACKAGING_INSTALL_PREFIX} : "
+message("#### CPACK_PACKAGING_INSTALL_PREFIX : "
 	${CPACK_PACKAGING_INSTALL_PREFIX})
 #[[
 #]]

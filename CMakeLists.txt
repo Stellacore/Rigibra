@@ -29,20 +29,19 @@
 cmake_minimum_required(VERSION 3.13)
 
 set(aProjName "Rigibra")
-set(aProjVersion "0.1.0") # Set this based on features, updates and patches
-set(aProjLib "${aProjName}Lib")
+set(${aProjName}LibName Rigibra)
+set(aProjVersion "0.1.0")  # set based on features, updates and patches
+
+# Get source code identifier (e.g. hash code from git repo)
 include(./cmake/func_setReleaseTag.cmake)
-setReleaseTag(aProjSourceIdentity)
+setReleaseTag(aSourceIdentity)
 
 project(
 	${aProjName}
 	VERSION ${aProjVersion}
-	DESCRIPTION "Resolve conventions for sensor-to-vehicle mount configuration"
+	DESCRIPTION "Rigibra - RIGId body algeBRA package '${aSourceIdentity}'"
 	LANGUAGES CXX
 	)
-
-include(CTest)
-enable_testing()
 
 
 message("### CMAKE_MAJOR_VERSION: " ${CMAKE_MAJOR_VERSION})
@@ -57,16 +56,16 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# ===
-# === Environment specific flags
-# ===
+# If any compile flags definitions - add here
+add_definitions()
+
 
 set(BUILD_FLAGS_FOR_CLANG
 	""
 	)
 set(BUILD_FLAGS_FOR_GCC
 	"-DRigibra_Project_Version=\"${aProjVersion}\""
-	"-DRigibra_Source_Identity=\"${aProjSourceIdentity}\""
+	"-DRigibra_Source_Identity=\"${aSourceIdentity}\""
 	#
 	-pthread
 	-fomit-frame-pointer
@@ -87,10 +86,36 @@ set(BUILD_FLAGS_FOR_VISUAL
 	""
 	)
 
+find_package(Engabra REQUIRED NO_MODULE)
+message(Engabra Found: ${Engabra_FOUND})
+message(Engabra Version: ${Engabra_VERSION})
 
-find_package(engabra REQUIRED NO_MODULE)
-message(engabra Found: ${engabra_FOUND})
-message(engabra Version: ${engabra_VERSION})
+##
+## -- configure packaging utilities
+##
+
+# unit test capabilities
+# include and enable here for enable to be inherited by subdir tree
+include(CTest)
+enable_testing()
+
+# Needs to be included first for use in subdir CMakeLists.txt files
+include(GNUInstallDirs) # creates/sets CMAKE_INSTALL_<dir>
+
+
+##
+## -- project source tree description
+##
+
+set(EXPORT_ALIAS_NAME ${aProjName}::${aProjName})
+set(EXPORT_TARGETS_NAME ${aProjName}Targets)
+set(EXPORT_FILENAME ${EXPORT_TARGETS_NAME}.cmake)
+message("### EXPORT_ALIAS_NAME: " ${EXPORT_ALIAS_NAME})
+message("### EXPORT_TARGETS_NAME: " ${EXPORT_TARGETS_NAME})
+message("### EXPORT_FILENAME: " ${EXPORT_FILENAME})
+
+
+## -- Inform CMake about project tree
 
 # ===
 # === Documentation
@@ -102,26 +127,109 @@ add_subdirectory(doc) # project reference documentation
 # === Library
 # ===
 
-message("adding src library aProjLib: ${aProjLib}")
+add_subdirectory(src) # project source code
+add_subdirectory(include) # project library public interface (e.g. c++ headers)
 
-# set(EXPORT_ALIAS_NAME ${aProjLib}::${aProjLib})
-# set(EXPORT_TARGETS_NAME ${aProjLib}Targets)
-# set(EXPORT_FILENAME ${EXPORT_TARGETS_NAME}.cmake)
-# message("### EXPORT_ALIAS_NAME: " ${EXPORT_ALIAS_NAME})
-# message("### EXPORT_TARGETS_NAME: " ${EXPORT_TARGETS_NAME})
-# message("### EXPORT_FILENAME: " ${EXPORT_FILENAME})
+# ===
+# === Tests
+# ===
 
-add_subdirectory(src)
+add_subdirectory(test) # developer unit tests (check source code operation)
+#add_subdirectory(vnv) # use-case verifcation and validation tests
 
 # ===
 # === Demonstrations
 # ===
 
-## add_subdirectory(demo)
+#add_subdirectory(demo) # demonstration/example code
 
 # ===
-# === Test programs
+# === Packaging
 # ===
 
-add_subdirectory(test)
+# CMake configuration file packaging
+add_subdirectory(cmake) # generate .cmake files for downstream use
+
+##
+## -- CMake configuration utilities
+##
+
+message("####==== aProjName: ${aProjName}")
+message("####==== ${aProjName}_VERSION: ${${aProjName}_VERSION}")
+set_property(
+	TARGET ${aProjName}
+	PROPERTY VERSION ${${aProjName}_VERSION}
+	)
+set_property(
+	TARGET ${aProjName}
+	PROPERTY VERSION INTERFACE_${aProjName}_MAJOR_VERSION 1
+	)
+set_property(
+	TARGET ${aProjName}
+	APPEND PROPERTY COMPATIBLE_INTERFACE_STRING ${aProjName}_MAJOR_VERSION
+	)
+
+##
+## -- Distribution packages
+##
+
+# Override default install location for testing this package
+# In general default (no command here) will install to /usr/{lib,bin,...}
+# - but here, set package to sandbox location for easier/safer testing
+# set (DEB_PACKAGE_ROOT "/tmpLocal/${aProjName}")
+# - default is "/usr" (e.g. for system packages)
+# - specify explicitly as "/usr/local" as a developer local package
+# - extract from command line
+set (DEB_PACKAGE_ROOT "${CMAKE_INSTALL_PREFIX}")
+set(CPACK_PACKAGING_INSTALL_PREFIX "${DEB_PACKAGE_ROOT}")
+
+# list of packages to create (e.g. "DEB;RPM;...") if all tools installed
+set(CPACK_GENERATOR "DEB")
+
+#
+# === Distribution package creation
+#
+
+	set(aProj_PACKAGE_VENDOR "https://github.com/Stellacore")
+	set(aProj_PACKAGE_MAINTAINER "https://github.com/Stellacore/${aProjName}")
+
+	# Specify generic cross-package distribuation properties
+	# set(CPACK_PACKAGE_NAME ${aProjName}) # same as default
+	set(CPACK_PACKAGE_VENDOR "${aProj_PACKAGE_VENDOR}")
+	set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
+	set(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VERSION_MINOR})
+	set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
+	set(CPACK_PACKAGE_VERSION_TWEAK ${PROJECT_VERSION_TWEAK})
+
+
+	# == Debian package
+
+		set(CPACK_PACKAGING_INSTALL_PREFIX "${DEB_PACKAGE_ROOT}")
+		# Set package(Generator) specific characteristics
+		set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${aProj_PACKAGE_MAINTAINER}")
+		# -- deps:
+		#	set(APT_PACKAGE_DEPLIST
+		#	"libeigen3-dev (>= ${EigenVersion}) \
+		#	"
+		#	)
+		# set(CPACK_DEBIAN_PACKAGE_DEPENDS ${APT_PACKAGE_DEPLIST})
+
+
+	# Must be included after the package variables are set
+	include(CPack)
+
+message("###")
+message("### CMAKE_INSTALL_LIBDIR: " ${CMAKE_INSTALL_LIBDIR})
+message("### CMAKE_INSTALL_BINDIR: " ${CMAKE_INSTALL_BINDIR})
+message("### CMAKE_INSTALL_INCLUDEDIR: " ${CMAKE_INSTALL_INCLUDEDIR})
+message("### CMAKE_INSTALL_DOCDIR: " ${CMAKE_INSTALL_DOCDIR})
+message("###")
+message("### CMAKE_INSTALL_FULL_LIBDIR: " ${CMAKE_INSTALL_FULL_LIBDIR})
+message("### CMAKE_INSTALL_FULL_BINDIR: " ${CMAKE_INSTALL_FULL_BINDIR})
+message("### CMAKE_INSTALL_FULL_INCLUDEDIR: " ${CMAKE_INSTALL_FULL_INCLUDEDIR})
+message("### CMAKE_INSTALL_FULL_DOCDIR: " ${CMAKE_INSTALL_FULL_DOCDIR})
+message("###")
+message("### DEB_PACKAGE_ROOT: " ${DEB_PACKAGE_ROOT})
+message("###")
+
 
