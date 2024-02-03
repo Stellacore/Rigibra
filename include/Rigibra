@@ -22,38 +22,16 @@
 // SOFTWARE.
 //
 
-
-#ifndef Rigibra_hpp_INCL_
-#define Rigibra_hpp_INCL_
+#ifndef Rigibra__INCL_
+#define Rigibra__INCL_
 
 /*! \file
- * \brief Top level include file for all of Rigibra utilities.
- *
+ * \brief Top level include file for Rigibra project.
  */
 
 
-#include <string>
+#include "Rigibra.hpp"
 
 
-/*! \brief Main namespace for Rigibra project software.
- *
- * Example:
- * \snippet test_cmake.cpp DoxyExample01
- *
- */
-namespace rigibra
-{
-	//! Project version description
-	std::string
-	projectVersion
-		();
+#endif // Rigibra__INCL_
 
-	//! Project source code identification description
-	std::string
-	sourceIdentity
-		();
-
-} // [rigibra]
-
-
-#endif // Rigibra_hpp_INCL_
