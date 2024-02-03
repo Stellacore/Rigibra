@@ -30,37 +30,51 @@
 
 #include "Rigibra.hpp"
 
+#include <Engabra>
+
 #include <iostream>
 #include <sstream>
 
 
 namespace
 {
-	//! Examples for documentation
+	//! Example for documentation
 	void
 	test0
 		( std::ostream & oss
 		)
 	{
 		// [DoxyExample01]
-		std::string const gotProjVersion{ rigibra::projectVersion() };
-		std::string const gotSrcIdentity{ rigibra::sourceIdentity() };
-		std::cout << "gotProjVersion: '" << gotProjVersion << "'\n";
-		std::cout << "gotSrcIdentity: '" << gotSrcIdentity << "'\n";
+
+		std::string const gotVer{ rigibra::projectVersion() };
+		std::string const gotSid{ rigibra::sourceIdentity() };
 
 		// [DoxyExample01]
 
-		if (gotProjVersion.empty())
+		constexpr std::string::value_type aDot('.');
+		constexpr long int expDotCount{ 2u };
+		long int const gotDotCount
+			{ std::count(gotVer.cbegin(), gotVer.cend(), aDot) };
+		if (! (gotDotCount == expDotCount))
 		{
-			oss << "Failure of gotProjVersion test\n";
-		}
-		if (gotSrcIdentity.empty())
-		{
-			oss << "Failure of gotSrcIdentity test\n";
+			oss << "Failure of projectVersion string test\n";
+			oss << "expDotCount: " << expDotCount << '\n';
+			oss << "gotDotCount: " << gotDotCount << '\n';
+			oss << "     gotVer: '" << gotVer << "'\n";
 		}
 
+		std::string const tagStart("t_");
+		bool const gotTagStart{ std::string::npos != gotSid.find(tagStart) };
+		if (! gotTagStart)
+		{
+			oss << "Failure of sourceIdentity string test\n";
+			oss << " got: '" << gotSid << "'\n";
+			oss << "    : perhaps need git config to enable 'git describe'\n";
+			oss << "    : with command similar to:\n";
+			oss << "    : 'git config "
+				"--global --add safe.directory /repos/Rigibra'" << '\n';
+		}
 	}
-
 }
 
 //! Check behavior of NS
@@ -70,6 +84,15 @@ main
 {
 	int status{ 1 };
 	std::stringstream oss;
+
+	std::cout << "=== Rigibra: Project Version: "
+		<< rigibra::projectVersion() << '\n';
+	std::cout << "=== Rigibra: Source Identity: "
+		<< rigibra::sourceIdentity() << '\n';
+	std::cout << "=== Using Engabra Project Version: "
+		<< engabra::projectVersion() << '\n';
+	std::cout << "=== Using Engabra Source Identity: "
+		<< engabra::sourceIdentity() << '\n';
 
 	test0(oss);
 
