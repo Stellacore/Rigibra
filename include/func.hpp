@@ -49,7 +49,9 @@ namespace rigibra
 		)
 	{
 		using namespace engabra::g3;
-		return Attitude{ Spinor{ fwd.theSpin.theSca, -fwd.theSpin.theBiv } };
+		SpinAngle const fwdSpinAngle{ fwd.spinAngle() };
+		SpinAngle const invSpinAngle{ -fwdSpinAngle.theBiv };
+		return Attitude(invSpinAngle);
 	}
 
 	//! Inverse Transformation (such that return*fwd = identity)
@@ -75,7 +77,7 @@ namespace rigibra
 	//	Attitude const & attA = attAwX;
 	//	Attitude const & attB = attBwA;
 	//	return Attitude{ attB * attA };
-		return Attitude{ attBwA.theSpin * attAwX.theSpin };
+		return Attitude(attBwA.spinor() * attAwX.spinor());
 	}
 
 	/*! Composition Transformations result is xBwRef(pnt) = xBwA(xAwRef(pnt)).

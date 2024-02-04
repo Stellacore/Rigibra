@@ -95,7 +95,7 @@ namespace
 		// construct arbitrary rigid body transform
 		using namespace rigibra;
 		PhysAngle const physAngle{ -2., 1., .75 };
-		Attitude const att{ Attitude::from(physAngle) };
+		Attitude const att{ Attitude(physAngle) };
 		Location const loc{ -5., 2., -3. };
 		Transform const xfm{ (1./8.)*loc, att };
 
@@ -125,7 +125,7 @@ namespace
 
 		Location const locA{ 10., 20., 30. };
 		PhysAngle const angA{ turnQtr * e12 };
-		Transform const xfmAwR{ locA, Attitude::from(angA) };
+		Transform const xfmAwR{ locA, Attitude(angA) };
 
 		Vector const aPnt{ 10., 21., 30. };
 		Vector const expPntA{ 1., 0., 0. };
@@ -143,7 +143,7 @@ namespace
 
 		Location const locB{ 1., 2., 3. };
 		PhysAngle const angB{ turnQtr * e23 };
-		Transform const xfmBwA{ locB, Attitude::from(angB) };
+		Transform const xfmBwA{ locB, Attitude(angB) };
 
 		Vector const expPntB{ 0., -3., 2. };
 		Vector const gotPntB{ xfmBwA(gotPntA) };
@@ -176,13 +176,13 @@ namespace
 		Location const locItemOnBody{ -3., 2., .5 };
 		PhysAngle const angleItemWrtBody
 			{ (pi/7.) * direction(17.*e23 - 13.*e31 + 11.*e12) };
-		Attitude const attItemWrtBody{ Attitude::from(angleItemWrtBody) };
+		Attitude const attItemWrtBody{ Attitude(angleItemWrtBody) };
 		Transform const xfmItemWrtBody{ locItemOnBody, attItemWrtBody };
 
 		// Example of a body oriented in some reference frame
 		Location const locBodyInRef{ 30., -10., -20. };
 		PhysAngle const angleBodyWrtRef{ BiVector{ .75, .25, -.5 } };
-		Attitude const attBodyWrtRef{ Attitude::from(angleBodyWrtRef) };
+		Attitude const attBodyWrtRef{ Attitude(angleBodyWrtRef) };
 		Transform const xfmBodyWrtRef{ locBodyInRef, attBodyWrtRef };
 
 		// Use composition to determine location of item in reference frame

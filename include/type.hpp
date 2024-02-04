@@ -89,6 +89,17 @@ namespace rigibra
 		engabra::g3::BiVector theBiv
 			{engabra::g3::null<engabra::g3::BiVector>()};
 
+		//! SpinAngle extracted from spinor (i.e. logarithm of the spinor).
+		inline
+		static
+		SpinAngle
+		from
+			( engabra::g3::Spinor const & spin
+			)
+		{
+			return SpinAngle{ engabra::g3::logG2(spin).theBiv };
+		}
+
 	}; // PhysAngle
 
 
@@ -103,38 +114,94 @@ namespace rigibra
 	 * the body coordinate frame. I.e., by example:
 	 * \snippet test_type.cpp DoxyExampleChirality
 	 */
-	struct Attitude
+	class Attitude
 	{
 		/*! \brief Spinor passive convention body wrt reference.
 		 *
 		 * Convention is:
 		 * \arg x: is a vector in the reference frame (the domain)
 		 * \arg y: is a vector in the body frame (the transform range)
-		 * \arg y = theSpin * x * reverse(theSpin)
+		 * \arg y = exp(spinAngle) * x * exp(-spinAngle)
+		 *
+		 * Various optimizations are possible (or desireable for
+		 * specific applications) such as caching spinor and or rotation
+		 * matrix values (and perhaps also their inverses). However,
+		 * For present purpose, it's most convenient to store the angle
+		 * itself to provide a simple and clean representation. Also,
+		 * this allows returning the physical angle withouth having
+		 * to resolve ambiquities associated with cases in which the
+		 * plane of rotation is fundamentally undefined.
 		 */
-		engabra::g3::Spinor theSpin
-			{ engabra::g3::null<engabra::g3::Spinor>() };
+		SpinAngle theSpinAngle{ engabra::g3::null<engabra::g3::BiVector>() };
 
-		//! An attitude constructed from a physical angle (2x spinor angle).
+	public:
+
+		//! Construct a null instance
 		inline
-		static
+		explicit
 		Attitude
-		from
+			()
+			: theSpinAngle{ engabra::g3::null<engabra::g3::BiVector>() }
+		{ }
+
+		//! Construct attitude of body matching this physical angle.
+		inline
+		explicit
+		Attitude
 			( PhysAngle const & physAngle
 			)
-		{
-			return Attitude{ engabra::g3::exp(.5 * physAngle.theBiv) };
-		}
+			: theSpinAngle{ .5 * physAngle.theBiv }
+		{ }
 
-		//! An attitude constructed from a spinor angle (1/2 physical angle).
+		//! Construct attitude of body matching TWICE this.
 		inline
-		static
+		explicit
 		Attitude
-		from
 			( SpinAngle const & spinAngle
 			)
+			: theSpinAngle{ spinAngle }
+		{ }
+
+		//! Construct with SpinAngle extracted directly from this spinor.
+		inline
+		explicit
+		Attitude
+			( engabra::g3::Spinor const & spin
+			)
+			: theSpinAngle{ SpinAngle::from(spin) }
+		{ }
+
+		/*! Spinor representation of attitude
+		 *
+		 * Convention is:
+		 * \arg x: is a vector in the reference frame (the domain)
+		 * \arg y: is a vector in the body frame (the transform range)
+		 * \arg y = spinor() * x * reverse(spinor())
+		 */
+		inline
+		engabra::g3::Spinor
+		spinor
+			() const
 		{
-			return Attitude{ engabra::g3::exp(spinAngle.theBiv) };
+			return engabra::g3::exp(theSpinAngle.theBiv);
+		}
+
+		//! Spinor angle associated with the Attitude (half of physAngle());
+		inline
+		SpinAngle const &
+		spinAngle
+			() const
+		{
+			return theSpinAngle;
+		}
+
+		//! Physical angle associated with the Attitude (twice spinAngle()).
+		inline
+		PhysAngle
+		physAngle
+			() const
+		{
+			return PhysAngle{ .5 * theSpinAngle.theBiv };
 		}
 
 		//! Expressed of vector in range(into) frame equiv to vecFrom in domain.
@@ -145,7 +212,11 @@ namespace rigibra
 			) const
 		{
 			using namespace engabra::g3;
-			return (theSpin * vecFrom * reverse(theSpin)).theVec;
+			// Note: this can be optimized - e.g. Create a FastAttitude
+			// class that constructs spinors (and/or grid matrices) for
+			// subsequent use in transforming large quantities of data
+			Spinor const spin{ spinor() };
+			return (spin * vecFrom * reverse(spin)).theVec;
 		}
 
 	}; // Attitude
@@ -186,7 +257,7 @@ namespace rigibra
 
 		/*! \brief Attitude of body with respect to reference frame.
 		 */
-		Attitude theAtt{ engabra::g3::null<engabra::g3::Spinor>() };
+		Attitude theAtt;
 
 		//! Expressed of vector in range(into) frame equiv to vecFrom in domain.
 		inline
@@ -230,7 +301,8 @@ namespace rigibra
 		()
 	{
 		// as implemented here, zero parameter values provide identity
-		return Attitude{ engabra::g3::one<engabra::g3::Spinor>() };
+		using namespace engabra::g3;
+		return Attitude{ SpinAngle{ zero<BiVector>() } };
 	}
 
 	//! Specialization for Transform
@@ -241,10 +313,8 @@ namespace rigibra
 		()
 	{
 		// as implemented here, zero parameter values provide identity
-		return Transform
-			{ engabra::g3::zero<engabra::g3::Vector>()
-			, identity<Attitude>()
-			};
+		using namespace engabra::g3;
+		return Transform{ zero<Vector>(), identity<Attitude>() };
 	}
 
 	//! In general forward null object requests to Engabra
@@ -261,10 +331,11 @@ namespace rigibra
 	template <>
 	inline
 	Attitude
-	constexpr null
+	null
 		()
 	{
-		return Attitude{ engabra::g3::null<engabra::g3::Spinor>() };
+		using namespace engabra::g3;
+		return Attitude(PhysAngle{ null<BiVector>() });
 	}
 
 
@@ -272,7 +343,7 @@ namespace rigibra
 	template <>
 	inline
 	Transform
-	constexpr null
+	null
 		()
 	{
 		return Transform{ null<Location>(), null<Attitude>() };
@@ -290,7 +361,7 @@ namespace rigibra
 		)
 	{
 		return
-			( engabra::g3::isValid(att.theSpin)
+			( engabra::g3::isValid(att.spinAngle().theBiv)
 			);
 	}
 
@@ -320,7 +391,8 @@ namespace rigibra
 		, double const & tol = std::numeric_limits<double>::epsilon()
 		)
 	{
-		return engabra::g3::nearlyEquals(attA.theSpin, attB.theSpin, tol);
+		return engabra::g3::nearlyEquals
+			(attA.spinAngle().theBiv, attB.spinAngle().theBiv, tol);
 	}
 
 	//! True if member data values are same within tolerance
@@ -356,7 +428,7 @@ namespace
 		, rigibra::Attitude const & att
 		)
 	{
-		ostrm << att.theSpin;
+		ostrm << "physAngle: " << att.physAngle().theBiv;
 		return ostrm;
 	}
 

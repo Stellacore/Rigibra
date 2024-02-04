@@ -130,9 +130,9 @@ namespace
 		// Attitude instances that are consistent with each other. I.e.,
 		// Each represents the exact same rotation and attitude.
 		rigibra::Attitude const gotAttFromPhys
-			{ rigibra::Attitude::from(expPhysAngle) };
+			{ rigibra::Attitude(expPhysAngle) };
 		rigibra::Attitude const gotAttFromSpin
-			{ rigibra::Attitude::from(expSpinAngle) };
+			{ rigibra::Attitude(expSpinAngle) };
 
 		// Since the attitudes are the same, so are the inverses
 		rigibra::Attitude const attPhysYwX{ inverse(gotAttFromPhys) };
@@ -166,7 +166,7 @@ namespace
 
 		// Small turn of body about the X-Y plane
 		PhysAngle const smallTurnCCW{ .1 * e12 };
-		Attitude const att{ Attitude::from(smallTurnCCW) };
+		Attitude const att{ Attitude(smallTurnCCW) };
 
 		// Since the body is turned counter clock wise (CCW),
 		// the world frame "x-axis" should appear to have a
@@ -192,7 +192,7 @@ namespace
 
 		// Body attitude set to a 90-deg rotation in the "x-y" plane
 		PhysAngle const angleQtr{ turnQtr * e12 };
-		Attitude const attQtr{ Attitude::from(angleQtr) };
+		Attitude const attQtr{ Attitude(angleQtr) };
 
 		// Put body at expBodyOrigInRef and THEN rotated 90-deg CCW in X-Y plane
 		Transform const xfmBodyWrtRef{ expBodyOrigInRef, attQtr };
