@@ -257,7 +257,8 @@ namespace rigibra
 
 		/*! \brief Attitude of body with respect to reference frame.
 		 */
-		Attitude theAtt;
+		Attitude theAtt
+			{ PhysAngle{ engabra::g3::null<engabra::g3::BiVector>() } };
 
 		//! Expressed of vector in range(into) frame equiv to vecFrom in domain.
 		inline
