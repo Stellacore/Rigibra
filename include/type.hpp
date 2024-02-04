@@ -44,12 +44,64 @@ namespace rigibra
 
 	using Location = engabra::g3::Vector;
 
+	/*! \brief Physically meaningful 3D angle (size and plane of rotation).
+	 *
+	 * This class exists to provide type safety and mitigate confusion
+	 * working with different angle interpreations. A primary use of
+	 * this class is providing type-safe interaction with Attitude
+	 * instances.
+	 *
+	 * Notably this class provides a distinction from SpinAngle.
+	 * This PhysAngle type is generally most
+	 * useful at the application level and for data i/o.
+	 *
+	 * Interpretation
+	 * \snippet test_type.cpp DoxyExampleAngle
+	 *
+	 */
+	struct PhysAngle
+	{
+		//! Size and direction of physical rotation angle (default to null).
+		engabra::g3::BiVector theBiv
+			{engabra::g3::null<engabra::g3::BiVector>()};
+
+	}; // PhysAngle
+
+	/*! \brief Mathematically convenient 3D angle (size and plane of rotation).
+	 *
+	 * This class exists to provide type safety and mitigate confusion
+	 * working with different angle interpreations. A primary use of
+	 * this class is providing type-safe interaction with Attitude
+	 * instances.
+	 *
+	 * Notably this class provides a distinction from PhysAngle.
+	 * This SpinAngle type is generally most useful for internal
+	 * implementations and abstract mathematical relationships.
+	 *
+	 * The SpinAngle is one half the size of the corresponding PhysAngle.
+	 *
+	 * Interpretation
+	 * \snippet test_type.cpp DoxyExampleAngle
+	 */
+	struct SpinAngle
+	{
+		//! 1/2 size and direction of physical rotation angle (default to null).
+		engabra::g3::BiVector theBiv
+			{engabra::g3::null<engabra::g3::BiVector>()};
+
+	}; // PhysAngle
+
+
 	/*! \brief Attitude of body frame with respect to reference frame.
 	 *
 	 * Note: The domain of the spinor, and coordiante system in which
 	 *       its components are expressed is that of the reference
 	 *       frame (with respect to which body attitudes are being
 	 *       represented.
+	 *
+	 * The convention employed is that the attitude refers to that of
+	 * the body coordinate frame. I.e., by example:
+	 * \snippet test_type.cpp DoxyExampleChirality
 	 */
 	struct Attitude
 	{
@@ -60,7 +112,41 @@ namespace rigibra
 		 * \arg y: is a vector in the body frame (the transform range)
 		 * \arg y = theSpin * x * reverse(theSpin)
 		 */
-		engabra::g3::Spinor theSpin{};
+		engabra::g3::Spinor theSpin
+			{ engabra::g3::null<engabra::g3::Spinor>() };
+
+		//! An attitude constructed from a physical angle (2x spinor angle).
+		inline
+		static
+		Attitude
+		from
+			( PhysAngle const & physAngle
+			)
+		{
+			return Attitude{ engabra::g3::exp(.5 * physAngle.theBiv) };
+		}
+
+		//! An attitude constructed from a spinor angle (1/2 physical angle).
+		inline
+		static
+		Attitude
+		from
+			( SpinAngle const & spinAngle
+			)
+		{
+			return Attitude{ engabra::g3::exp(spinAngle.theBiv) };
+		}
+
+		//! Expressed of vector in range(into) frame equiv to vecFrom in domain.
+		inline
+		engabra::g3::Vector
+		operator()
+			( engabra::g3::Vector const & vecFrom
+			) const
+		{
+			using namespace engabra::g3;
+			return (theSpin * vecFrom * reverse(theSpin)).theVec;
+		}
 
 	}; // Attitude
 
@@ -88,17 +174,30 @@ namespace rigibra
 	 *       transformation domain (the reference coordiante system).
 	 *       I.e., the components of #theAtt are expressed in the
 	 *       same coordinate frame as are the components of #theLoc.
+	 *
+	 * Example:
+	 * \snippet test_type.cpp DoxyExampleOrderTR
 	 */
 	struct Transform
 	{
 		/*! \brief Location of body expressed in reference system.
 		 */
-		engabra::g3::Vector theLoc{};
+		engabra::g3::Vector theLoc{ engabra::g3::null<engabra::g3::Vector>() };
 
 		/*! \brief Attitude of body with respect to reference frame.
-		 *
 		 */
-		Attitude theAtt{};
+		Attitude theAtt{ engabra::g3::null<engabra::g3::Spinor>() };
+
+		//! Expressed of vector in range(into) frame equiv to vecFrom in domain.
+		inline
+		engabra::g3::Vector
+		operator()
+			( engabra::g3::Vector const & vecFrom
+			) const
+		{
+			using namespace engabra::g3;
+			return theAtt(vecFrom - theLoc);
+		}
 
 	}; // Transform
 
@@ -107,7 +206,12 @@ namespace rigibra
 // == constant types
 //
 
-	//! Component instances of object that support identity transformation.
+	/*! Component instances of object that support identity transformation.
+	 *
+	 * E.g. for
+	 * \arg PhysAngle
+	 * \arg SpinAngle
+	 */
 	template <typename Type>
 	inline
 	Type
@@ -116,6 +220,31 @@ namespace rigibra
 	{
 		// as implemented here, zero parameter values provide identity
 		return engabra::g3::zero<Type>();
+	}
+
+	//! Specialization for Attitude
+	template <>
+	inline
+	Attitude
+	identity
+		()
+	{
+		// as implemented here, zero parameter values provide identity
+		return Attitude{ engabra::g3::one<engabra::g3::Spinor>() };
+	}
+
+	//! Specialization for Transform
+	template <>
+	inline
+	Transform
+	identity
+		()
+	{
+		// as implemented here, zero parameter values provide identity
+		return Transform
+			{ engabra::g3::zero<engabra::g3::Vector>()
+			, identity<Attitude>()
+			};
 	}
 
 	//! In general forward null object requests to Engabra
@@ -239,7 +368,10 @@ namespace
 		, rigibra::Transform const & xfm
 		)
 	{
-		ostrm << xfm.theLoc << "  " << xfm.theAtt;
+		ostrm
+			<< " loc: " << xfm.theLoc
+			<< " att: " << xfm.theAtt
+			;
 		return ostrm;
 	}
 

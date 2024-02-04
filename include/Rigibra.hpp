@@ -32,6 +32,9 @@
  */
 
 
+#include <func.hpp>
+#include <type.hpp>
+
 #include <string>
 
 

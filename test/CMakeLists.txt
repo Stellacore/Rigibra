@@ -29,6 +29,7 @@ set(unitTests
 	_ # template for test cases
 	test_Version # test project version info retrieval
 
+	test_func # functions for manipulating transformations
 	test_type # 3D rigid body transformation
 
 	)
