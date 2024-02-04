@@ -30,8 +30,10 @@
 # list of headers that form package public interface
 set(aProjPublicHeaders
 
-	## Rigibra
+	Rigibra
 	Rigibra.hpp
+	type.hpp
+	func.hpp
 
 	)
 
