@@ -201,7 +201,7 @@ namespace rigibra
 		physAngle
 			() const
 		{
-			return PhysAngle{ .5 * theSpinAngle.theBiv };
+			return PhysAngle{ 2. * theSpinAngle.theBiv };
 		}
 
 		//! Expressed of vector in range(into) frame equiv to vecFrom in domain.

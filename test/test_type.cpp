@@ -153,6 +153,55 @@ namespace
 		}
 	}
 
+	//! Check methods in Attitude class
+	void
+	testAttMethods
+		( std::ostream & oss
+		)
+	{
+		using namespace rigibra;
+
+		// angles associated with equivalent rotation
+		PhysAngle const expPA{ 2.2, -.6, .4 };
+		SpinAngle const expSA{ 1.1, -.3, .2 };
+
+		// construct Attitude instances from each {Phys,Spin}Angle types
+		Attitude const att1(expPA);
+		Attitude const att2(expSA);
+
+		// retrieve PhysAngle from each Attitude
+		PhysAngle const gotPA1{ att1.physAngle() };
+		PhysAngle const gotPA2{ att2.physAngle() };
+
+		// retrieve SpinAnglefrom each Attitude
+		SpinAngle const gotSA1{ att1.spinAngle() };
+		SpinAngle const gotSA2{ att2.spinAngle() };
+
+		using namespace engabra::g3;
+
+		// check physical angle retrievals from each (Phys,Spin) construction
+		if ( (! nearlyEquals(gotPA1.theBiv, expPA.theBiv))
+		  || (! nearlyEquals(gotPA2.theBiv, expPA.theBiv))
+		   )
+		{
+			oss << "Failure to recover PA1 test\n";
+			oss << " exp: " << expPA << '\n';
+			oss << "got1: " << gotPA1 << '\n';
+			oss << "got2: " << gotPA2 << '\n';
+		}
+
+		// check spin angle retrievals from each (Phys,Spin) construction
+		if ( (! nearlyEquals(gotSA1.theBiv, expSA.theBiv))
+		  || (! nearlyEquals(gotSA2.theBiv, expSA.theBiv))
+		   )
+		{
+			oss << "Failure to recover SA1 test\n";
+			oss << " exp: " << expSA << '\n';
+			oss << "got1: " << gotSA1 << '\n';
+			oss << "got2: " << gotSA2 << '\n';
+		}
+	}
+
 	//! Check conventions (e.g. passive rotation, translate then rotate)
 	void
 	testConvention
@@ -227,10 +276,11 @@ main
 	()
 {
 	int status{ 1 };
-	std::stringstream oss;
+	std::ostringstream oss;
 
 	testNullIdent(oss);
 	testAttCtor(oss);
+	testAttMethods(oss);
 	testConvention(oss);
 
 	if (oss.str().empty()) // Only pass if no errors were encountered
