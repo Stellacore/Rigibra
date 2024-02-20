@@ -421,6 +421,33 @@ namespace rigibra
 
 namespace
 {
+	//! Overload for putting PhysAngle to stream
+	inline
+	std::ostream &
+	operator<<
+		( std::ostream & ostrm
+		, rigibra::PhysAngle const & physAngle
+		)
+	{
+		using namespace engabra::g3;
+		ostrm << physAngle.theBiv;
+		return ostrm;
+	}
+
+	//! Overload for putting SpinAngle to stream
+	inline
+	std::ostream &
+	operator<<
+		( std::ostream & ostrm
+		, rigibra::SpinAngle const & spinAngle
+		)
+	{
+		using namespace engabra::g3;
+		ostrm << spinAngle.theBiv;
+		return ostrm;
+	}
+
+
 	//! Overload for putting attitude spinor contents to stream.
 	inline
 	std::ostream &
