@@ -180,8 +180,8 @@ namespace
 		using namespace engabra::g3;
 
 		// check physical angle retrievals from each (Phys,Spin) construction
-		if ( (! nearlyEquals(gotPA1.theBiv, expPA.theBiv))
-		  || (! nearlyEquals(gotPA2.theBiv, expPA.theBiv))
+		if ( (! nearlyEquals(gotPA1, expPA))
+		  || (! nearlyEquals(gotPA2, expPA))
 		   )
 		{
 			oss << "Failure to recover PA1 test\n";

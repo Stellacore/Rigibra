@@ -387,6 +387,32 @@ namespace rigibra
 	inline
 	bool
 	nearlyEquals
+		( PhysAngle const & physAngleA
+		, PhysAngle const & physAngleB
+		, double const & tol = std::numeric_limits<double>::epsilon()
+		)
+	{
+		return engabra::g3::nearlyEquals
+			(physAngleA.theBiv, physAngleB.theBiv, tol);
+	}
+
+	//! True if member data values are same within tolerance
+	inline
+	bool
+	nearlyEquals
+		( SpinAngle const & spinAngleA
+		, SpinAngle const & spinAngleB
+		, double const & tol = std::numeric_limits<double>::epsilon()
+		)
+	{
+		return engabra::g3::nearlyEquals
+			(spinAngleA.theBiv, spinAngleB.theBiv, tol);
+	}
+
+	//! True if member data values are same within tolerance
+	inline
+	bool
+	nearlyEquals
 		( Attitude const & attA
 		, Attitude const & attB
 		, double const & tol = std::numeric_limits<double>::epsilon()
