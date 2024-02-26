@@ -201,7 +201,7 @@ namespace rigibra
 		physAngle
 			() const
 		{
-			return PhysAngle{ .5 * theSpinAngle.theBiv };
+			return PhysAngle{ 2. * theSpinAngle.theBiv };
 		}
 
 		//! Expressed of vector in range(into) frame equiv to vecFrom in domain.
@@ -387,6 +387,32 @@ namespace rigibra
 	inline
 	bool
 	nearlyEquals
+		( PhysAngle const & physAngleA
+		, PhysAngle const & physAngleB
+		, double const & tol = std::numeric_limits<double>::epsilon()
+		)
+	{
+		return engabra::g3::nearlyEquals
+			(physAngleA.theBiv, physAngleB.theBiv, tol);
+	}
+
+	//! True if member data values are same within tolerance
+	inline
+	bool
+	nearlyEquals
+		( SpinAngle const & spinAngleA
+		, SpinAngle const & spinAngleB
+		, double const & tol = std::numeric_limits<double>::epsilon()
+		)
+	{
+		return engabra::g3::nearlyEquals
+			(spinAngleA.theBiv, spinAngleB.theBiv, tol);
+	}
+
+	//! True if member data values are same within tolerance
+	inline
+	bool
+	nearlyEquals
 		( Attitude const & attA
 		, Attitude const & attB
 		, double const & tol = std::numeric_limits<double>::epsilon()
@@ -421,6 +447,33 @@ namespace rigibra
 
 namespace
 {
+	//! Overload for putting PhysAngle to stream
+	inline
+	std::ostream &
+	operator<<
+		( std::ostream & ostrm
+		, rigibra::PhysAngle const & physAngle
+		)
+	{
+		using namespace engabra::g3;
+		ostrm << physAngle.theBiv;
+		return ostrm;
+	}
+
+	//! Overload for putting SpinAngle to stream
+	inline
+	std::ostream &
+	operator<<
+		( std::ostream & ostrm
+		, rigibra::SpinAngle const & spinAngle
+		)
+	{
+		using namespace engabra::g3;
+		ostrm << spinAngle.theBiv;
+		return ostrm;
+	}
+
+
 	//! Overload for putting attitude spinor contents to stream.
 	inline
 	std::ostream &
