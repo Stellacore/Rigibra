@@ -23,4 +23,19 @@ Use the CMake system to create a build generation environment. E.g. in a
 	$ sudo apt-get install ./Engabra-0.1.0-Linux.deb   # Install
 	$ sudo apt-get remove engabra   # Remove
 
+NOTE: The build process uses "git describe" command to get source code
+identifier information. If the build process (user) id is different from
+the source code repository ownership id, you may recieve an error
+message like this:
+
+	### Can't get 'git describe' result
+	### ErrorString: fatal: detected dubious ownership in repository at ...
+
+If this happens, the unit test (e.g. run via CTest), "test_Version" will
+fail. The git error can be avoided by adding an git exception assigned to
+the source code source repository, e.g.,
+
+	# To add an exception for this directory, call:
+	$ git config --global --add safe.directory /repos/Rigibra
+
 
