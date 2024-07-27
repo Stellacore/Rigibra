@@ -96,17 +96,24 @@ namespace rigibra
 	Transform
 	operator*
 		( Transform const & xBwA //!< e.g. xfm frameB wrt frameA
-		, Transform const & xAwRef //!< e.g. xfm frameA wrt frameRef
+		, Transform const & xAwX //!< e.g. xfm frameA wrt frameRef
 		)
 	{
-		Attitude const & attA = xAwRef.theAtt;
-		Attitude const & attB = xBwA.theAtt;
-		Attitude const attBwRef{ attB * attA };
-		Attitude const invA{ inverse(xAwRef.theAtt) };
-		Location const & aLoc = xAwRef.theLoc;
-		Location const & bLoc = xBwA.theLoc;
-		Location const locBinRef{ aLoc + invA(bLoc) };
-		return Transform{ locBinRef, attBwRef };
+		Transform xfm{ null<Transform>() };
+		if (isValid(xBwA) && isValid(xAwX))
+		{
+			Attitude const & attAwX = xAwX.theAtt;
+			Attitude const & attBwA = xBwA.theAtt;
+			Attitude const attBwX{ attBwA * attAwX };
+			//
+			Attitude const invA{ inverse(xAwX.theAtt) };
+			Location const & aLoc = xAwX.theLoc;
+			Location const & bLoc = xBwA.theLoc;
+			Location const locBinX{ aLoc + invA(bLoc) };
+			//
+			xfm = Transform{ locBinX, attBwX };
+		}
+		return xfm;
 	}
 
 } // [rigibra]
