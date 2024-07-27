@@ -171,6 +171,15 @@ namespace rigibra
 			: theSpinAngle{ SpinAngle::from(spin) }
 		{ }
 
+		//! True if this instance is not null
+		inline
+		bool
+		isValid
+			() const
+		{
+			return engabra::g3::isValid(theSpinAngle.theBiv);
+		}
+
 		/*! Spinor representation of attitude
 		 *
 		 * Convention is:
@@ -259,6 +268,18 @@ namespace rigibra
 		 */
 		Attitude theAtt
 			{ PhysAngle{ engabra::g3::null<engabra::g3::BiVector>() } };
+
+		//! True if this instance is not null
+		inline
+		bool
+		isValid
+			() const
+		{
+			return
+				(  engabra::g3::isValid(theLoc)
+				&& theAtt.isValid()
+				);
+		}
 
 		//! Expressed of vector in range(into) frame equiv to vecFrom in domain.
 		inline
@@ -361,9 +382,7 @@ namespace rigibra
 		( Attitude const & att
 		)
 	{
-		return
-			( engabra::g3::isValid(att.spinAngle().theBiv)
-			);
+		return att.isValid();
 	}
 
 	//! Provide explicit implementation for isValid<Transform>
@@ -373,10 +392,7 @@ namespace rigibra
 		( Transform const & xform
 		)
 	{
-		return
-			(  engabra::g3::isValid(xform.theLoc)
-			&& isValid(xform.theAtt)
-			);
+		return xform.isValid();
 	}
 
 //
