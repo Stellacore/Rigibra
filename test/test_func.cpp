@@ -104,7 +104,8 @@ namespace
 		Vector const gotVecY{ xfm(expVecX) };
 		Vector const gotVecX{ inverse(xfm)(gotVecY) };
 
-		if (! nearlyEquals(gotVecX, expVecX))
+		double const tol{ 4. * std::numeric_limits<double>::epsilon() };
+		if (! nearlyEquals(gotVecX, expVecX, tol))
 		{
 			Vector const difVecX{ gotVecX - expVecX };
 			oss << "Failure of Transform inverse test\n";
@@ -126,6 +127,19 @@ namespace
 		Location const locA{ 10., 20., 30. };
 		PhysAngle const angA{ turnQtr * e12 };
 		Transform const xfmAwR{ locA, Attitude(angA) };
+
+		// check composition with null
+		Transform const xNull{ rigibra::null<Transform>() };
+		Transform const xAcompNull{ xfmAwR * xNull };
+		Transform const xNullCompA{ xNull * xfmAwR };
+
+		if (isValid(xAcompNull) || isValid(xNullCompA))
+		{
+			oss << "Failure of composition with invalid data test\n";
+			oss << "       exp: " << xNull << '\n';
+			oss << "xAcompNull: " << xAcompNull << '\n';
+			oss << "xNullCompA: " << xNullCompA << '\n';
+		}
 
 		Vector const aPnt{ 10., 21., 30. };
 		Vector const expPntA{ 1., 0., 0. };
