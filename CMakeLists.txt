@@ -30,7 +30,7 @@ cmake_minimum_required(VERSION 3.13)
 
 set(aProjName "Rigibra")
 set(${aProjName}LibName Rigibra)
-set(aProjVersion "0.1.0")  # set based on features, updates and patches
+set(aProjVersion "0.1.1")  # set based on features, updates and patches
 
 # Get source code identifier (e.g. hash code from git repo)
 include(./cmake/func_setReleaseTag.cmake)
