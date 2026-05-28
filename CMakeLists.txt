@@ -81,6 +81,7 @@ set(BUILD_FLAGS_FOR_GCC
 	-pedantic-errors
 	#
 	-fmax-errors=1  # keep template error message generation under control
+	-Wno-psabi  # work around bug in -std=c++17 at GCC 10.1
 	)
 set(BUILD_FLAGS_FOR_VISUAL
 	""
